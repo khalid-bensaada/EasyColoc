@@ -10,7 +10,7 @@ class ProfileController extends Controller
 {
     public function edit()
     {
-        return view('profile.edit', [
+        return view('profile.show', [
             'user' => auth()->user()
         ]);
     }
@@ -34,7 +34,7 @@ class ProfileController extends Controller
             'password' => 'required|min:6|confirmed'
         ]);
         auth()->user()->update([
-            'password' => \Hash::make($request->password)
+            'password' => Hash::make($request->password)
         ]);
 
         return back()->with('seccess', 'password update');
