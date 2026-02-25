@@ -42,4 +42,29 @@
             @endif
         </div>
     </div>
+    @if(auth()->user()->colocations()->wherePivot('left_at', null)->exists())
+
+        <div class="mt-10">
+            <form method="POST" action="{{ route('colocation.leave') }}">
+                @csrf
+                <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded">
+                    Leave Colocation
+                </button>
+            </form>
+        </div>
+
+    @endif
+
+    @if(auth()->user()->ownedColocations()->where('status', 'active')->exists())
+
+        <div class="mt-4">
+            <form method="POST" action="{{ route('colocation.cancel') }}">
+                @csrf
+                <button type="submit" class="bg-black text-white px-4 py-2 rounded">
+                    Cancel Colocation
+                </button>
+            </form>
+        </div>
+
+    @endif
 </x-app-layout>
