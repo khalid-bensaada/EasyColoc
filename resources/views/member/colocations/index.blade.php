@@ -115,10 +115,10 @@
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <button
-                        class="px-4 py-2 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition shadow-sm">
+                    <a href="{{ route('member.colocations.create') }}"
+                        class="px-4 py-2 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition shadow-sm inline-block">
                         + Nouvelle colocation
-                    </button>
+                    </a>
 
                     <div
                         class="flex items-center gap-3 bg-white border border-slate-200 px-3 py-2 rounded-2xl shadow-sm">
