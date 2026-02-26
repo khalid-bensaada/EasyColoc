@@ -115,7 +115,7 @@
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <a href="{{ route('member.colocations.create') }}"
+                    <a href="{{ route('member.colocations.createForm') }}"
                         class="px-4 py-2 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition shadow-sm inline-block">
                         + Nouvelle colocation
                     </a>
@@ -137,32 +137,69 @@
 
             {{-- CONTENT --}}
             <section class="bg-white rounded-2xl border border-slate-200 shadow-sm">
-                <div class="p-6 border-b border-slate-200 flex items-center justify-between">
-                    <div>
-                        <h2 class="font-semibold text-lg">Colocations</h2>
-                        <p class="text-sm text-slate-500">All your current and past shared homes</p>
+                @if($colocations->isEmpty())
+
+                    <div class="text-center py-24 text-slate-500">
+                        <div
+                            class="mx-auto w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-3xl">
+                            👥
+                        </div>
+
+                        <div class="mt-4 text-lg font-semibold text-slate-800">
+                            Aucune colocation
+                        </div>
+
+                        <div class="text-sm mt-1">
+                            Commencez par en créer une nouvelle.
+                        </div>
+
+                        <a href="{{ route('member.colocations.create') }}"
+                            class="inline-block mt-6 px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition shadow-sm">
+                            + Nouvelle colocation
+                        </a>
                     </div>
 
-                    <div class="flex items-center gap-2">
-                        <input type="text" placeholder="Search..."
-                            class="hidden sm:block text-sm border border-slate-200 rounded-xl px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-200" />
-                    </div>
-                </div>
+                @else
 
-                {{-- Empty state --}}
-                <div class="text-center py-24 text-slate-500">
-                    <div
-                        class="mx-auto w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-3xl">
-                        👥
-                    </div>
-                    <div class="mt-4 text-lg font-semibold text-slate-800">Aucune colocation</div>
-                    <div class="text-sm mt-1">Commencez par en créer une nouvelle.</div>
+                    <div class="p-6 grid md:grid-cols-2 xl:grid-cols-3 gap-6">
 
-                    <button
-                        class="mt-6 px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition shadow-sm">
-                        + Nouvelle colocation
-                    </button>
-                </div>
+                        @foreach($colocations as $colocation)
+
+                            <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition">
+
+                                <div class="flex items-start justify-between mb-4">
+                                    <div>
+                                        <h3 class="font-semibold text-lg text-slate-900">
+                                            {{ $colocation->name }}
+                                        </h3>
+
+                                        <p class="text-sm text-slate-500 mt-1">
+                                            {{ $colocation->description ?? 'No description available.' }}
+                                        </p>
+                                    </div>
+
+                                    <span class="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700">
+                                        Active
+                                    </span>
+                                </div>
+
+                                <div class="text-xs text-slate-400 mb-4">
+                                    Created {{ $colocation->created_at->diffForHumans() }}
+                                </div>
+
+                                <div class="flex items-center justify-between">
+                                    <a href="#" class="text-sm font-semibold text-indigo-600 hover:text-indigo-800">
+                                        View details →
+                                    </a>
+                                </div>
+
+                            </div>
+
+                        @endforeach
+
+                    </div>
+
+                @endif
 
                 {{-- Later: we will replace empty state with a list/cards from DB --}}
             </section>
