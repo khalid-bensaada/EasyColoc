@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ColocationController;
+use App\Models\Colocation;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -36,13 +38,15 @@ Route::middleware(['auth'])->group(function () {
 
 
 Route::get('/member/colocations', function () {
-    return view('member.colocations.index');
-})->middleware('auth')->name('member.colocations.index');
+    $colocations = Colocation::where('owner_id', auth()->id())->get();
+
+    return view('member.colocations.index', compact('colocations'));
+})->name('member.colocations.index')->middleware('auth');
 
 
 Route::get('/member/colocations/create',
     [ColocationController::class, 'create']
-)->name('member.colocations.create');
+)->name('member.colocations.createForm');
 
 Route::post('/member/colocations',
     [ColocationController::class, 'store']
