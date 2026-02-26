@@ -9,7 +9,8 @@ class Colocation extends Model
     protected $fillable = [
         'name',
         'status',
-        'owner_id'
+        'owner_id',
+        'descriptions'
     ];
 
     public function owner()

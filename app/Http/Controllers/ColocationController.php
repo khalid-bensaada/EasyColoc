@@ -22,19 +22,19 @@ class ColocationController extends Controller
 
     public function create()
     {
-        return view('member.colocations.create');
+        return view('member.colocations.createForm');
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'descriptions' => 'nullable|string',
         ]);
 
         $colocation = Colocation::create([
             'name' => $request->name,
-            'description' => $request->description,
+            'descriptions' => $request->description,
             'owner_id' => Auth::id(),
             'status' => 'active',
         ]);
