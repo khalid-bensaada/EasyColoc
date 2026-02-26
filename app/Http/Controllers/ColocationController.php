@@ -11,9 +11,8 @@ class ColocationController extends Controller
 {
     public function index()
     {
-        $colocations = Auth::user()
-            ->colocations()
-            ->wherePivot('left_at', null)
+        $colocations = Colocation::where('owner_id', auth()->id())
+            ->where('status', 'active')
             ->latest()
             ->get();
 
@@ -27,6 +26,17 @@ class ColocationController extends Controller
 
     public function store(Request $request)
     {
+        $exists = Colocation::where('owner_id', auth()->id())
+            ->where('status', 'active')
+            ->exists();
+
+        if ($exists) {
+            return back()->withErrors([
+                'colocation' => 'You must deactivate your current colocation before creating a new one.'
+            ]);
+        }
+
+
         $request->validate([
             'name' => 'required|string|max:255',
             'descriptions' => 'nullable|string',
