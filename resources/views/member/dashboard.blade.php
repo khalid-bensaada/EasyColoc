@@ -79,6 +79,7 @@
                     </span>
                     <span>Profile</span>
                 </a>
+
             </nav>
 
             {{-- Reputation card --}}
@@ -133,6 +134,17 @@
                             {{ $initial }}
                         </div>
                     </div>
+                    <form method="POST" action="{{ route('logout') }}" class="mt-4">
+                        @csrf
+
+                        <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl
+        bg-red-500 hover:bg-red-600 text-white font-semibold transition shadow-sm">
+
+                            <span>🚪</span>
+                            <span>Logout</span>
+
+                        </button>
+                    </form>
                 </div>
             </div>
 

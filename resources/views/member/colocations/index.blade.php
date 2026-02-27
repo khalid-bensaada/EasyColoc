@@ -153,7 +153,7 @@
                             Commencez par en créer une nouvelle.
                         </div>
 
-                        <a href="{{ route('member.colocations.create') }}"
+                        <a href="{{ route('member.colocations.createForm') }}"
                             class="inline-block mt-6 px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition shadow-sm">
                             + Nouvelle colocation
                         </a>
@@ -178,9 +178,7 @@
                                         </p>
                                     </div>
 
-                                    <span class="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700">
-                                        Active
-                                    </span>
+                                    
                                 </div>
 
                                 <div class="text-xs text-slate-400 mb-4">
@@ -188,10 +186,24 @@
                                 </div>
 
                                 <div class="flex items-center justify-between">
-                                    <a href="#" class="text-sm font-semibold text-indigo-600 hover:text-indigo-800">
-                                        View details →
+                                    <a href="{{ route('member.colocations.ownercoloc') }}"
+                                        class="text-sm font-semibold text-indigo-600 hover:text-indigo-800">
+                                        View colocation →
                                     </a>
                                 </div>
+                                @if(auth()->id() === $colocation->owner_id && $colocation->status === 'active')
+
+                                    <form method="POST" action="{{ route('colocation.cancel', $colocation->id) }}">
+                                        @csrf
+
+                                        <button type="submit"
+                                            class="text-sm font-semibold text-red-600 hover:text-red-800 transition">
+                                            Desactive
+                                        </button>
+
+                                    </form>
+
+                                @endif
 
                             </div>
 
@@ -201,7 +213,7 @@
 
                 @endif
 
-                {{-- Later: we will replace empty state with a list/cards from DB --}}
+                
             </section>
 
         </main>
