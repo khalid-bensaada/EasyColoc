@@ -44,10 +44,22 @@ Route::get('/member/colocations', function () {
 })->name('member.colocations.index')->middleware('auth');
 
 
-Route::get('/member/colocations/create',
+Route::get(
+    '/member/colocations/create',
     [ColocationController::class, 'create']
 )->name('member.colocations.createForm');
 
-Route::post('/member/colocations',
+Route::post(
+    '/member/colocations',
     [ColocationController::class, 'store']
 )->name('colocation.store');
+
+Route::post('/colocation/{id}/cancel', [ColocationController::class, 'cancel'])
+    ->name('colocation.cancel');
+
+Route::middleware(['auth'])->group(function () {
+
+    Route::get('/member/colocations/user-dash', function () {
+        return view('member.colocations.ownercoloc');
+    })->name('member.colocations.ownercoloc');
+});
