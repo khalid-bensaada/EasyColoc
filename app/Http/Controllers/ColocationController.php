@@ -55,4 +55,23 @@ class ColocationController extends Controller
 
         return redirect()->route('member.colocations.index');
     }
+
+    public function cancel($id)
+    {
+        $colocation = Colocation::findOrFail($id);
+
+        if (auth()->id() !== $colocation->owner_id) {
+            return back()->with('error', 'Not allowed');
+        }
+
+        if ($colocation->status !== 'active') {
+            return back()->with('error', 'Already desactivated');
+        }
+
+        $colocation->update([
+            'status' => 'cancelled'
+        ]);
+
+        return back()->with('success', 'Colocation desactivated');
+    }
 }
