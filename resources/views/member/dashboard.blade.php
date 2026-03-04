@@ -71,7 +71,7 @@
                     </a>
                 @endif
 
-                <a href="{{ route('profile.edit') }}"
+                <a href=""
                     class="group flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium transition text-slate-600 hover:bg-slate-100 hover:text-slate-900">
                     <span
                         class="w-8 h-8 rounded-lg flex items-center justify-center bg-slate-100 group-hover:bg-slate-200">

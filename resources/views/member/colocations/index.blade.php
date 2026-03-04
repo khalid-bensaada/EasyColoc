@@ -115,6 +115,11 @@
                 </div>
 
                 <div class="flex items-center gap-3">
+                    <a href="{{ route('member.colocations.joinForm') }}"
+                        class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 font-semibold hover:bg-slate-50 transition shadow-sm inline-block">
+                        Rejoindre une colocation
+                    </a>
+
                     <a href="{{ route('member.colocations.createForm') }}"
                         class="px-4 py-2 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition shadow-sm inline-block">
                         + Nouvelle colocation
@@ -178,7 +183,7 @@
                                         </p>
                                     </div>
 
-                                    
+
                                 </div>
 
                                 <div class="text-xs text-slate-400 mb-4">
@@ -186,8 +191,8 @@
                                 </div>
 
                                 <div class="flex items-center justify-between">
-                                    <a href="{{ route('member.colocations.ownercoloc') }}"
-                                        class="text-sm font-semibold text-indigo-600 hover:text-indigo-800">
+                                    <a href="{{ route('member.colocations.ownercoloc', $colocation->id) }}"
+                                        class="text-indigo-600">
                                         View colocation →
                                     </a>
                                 </div>
@@ -213,7 +218,7 @@
 
                 @endif
 
-                
+
             </section>
 
         </main>

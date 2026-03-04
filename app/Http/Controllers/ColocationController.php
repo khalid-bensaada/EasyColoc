@@ -2,10 +2,16 @@
 
 namespace App\Http\Controllers;
 
+
+use Illuminate\Support\Facades\Mail;
+use App\Mail\InvitationMail;
 use Illuminate\Http\Request;
 use App\Models\Colocation;
-
+use App\Models\Invitation;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use App\Models\Categories;
 
 class ColocationController extends Controller
 {
@@ -36,7 +42,6 @@ class ColocationController extends Controller
             ]);
         }
 
-
         $request->validate([
             'name' => 'required|string|max:255',
             'descriptions' => 'nullable|string',
@@ -44,18 +49,24 @@ class ColocationController extends Controller
 
         $colocation = Colocation::create([
             'name' => $request->name,
-            'descriptions' => $request->description,
+            'descriptions' => $request->descriptions,
             'owner_id' => Auth::id(),
             'status' => 'active',
+            'token' => Str::random(12)
         ]);
 
         $colocation->users()->attach(Auth::id(), [
             'joined_at' => now(),
+            'role' => 'Owner'
         ]);
 
-        return redirect()->route('member.colocations.index');
-    }
+        $user = Auth::user();
+        $user->isOwner = true;
+        $user->save();
 
+        return redirect()->route('member.colocations.index')
+            ->with('success', 'Colocation created and you are now the owner!');
+    }
     public function cancel($id)
     {
         $colocation = Colocation::findOrFail($id);
@@ -65,13 +76,105 @@ class ColocationController extends Controller
         }
 
         if ($colocation->status !== 'active') {
-            return back()->with('error', 'Already desactivated');
+            return back()->with('error', 'Already deactivated');
         }
 
         $colocation->update([
             'status' => 'cancelled'
         ]);
 
-        return back()->with('success', 'Colocation desactivated');
+        return back()->with('success', 'Colocation deactivated');
+    }
+
+    public function sendInvitation(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'colocation_id' => 'required|exists:colocations,id'
+        ]);
+
+        $colocation = Colocation::findOrFail($request->colocation_id);
+
+        Mail::to($request->email)->send(new InvitationMail($colocation, $colocation->token));
+
+        return back()->with('success', 'Invitation sent successfully to ' . $request->email);
+    }
+
+    public function join(Request $request)
+    {
+        $request->validate([
+            'token' => 'required|string'
+        ]);
+
+        $colocation = Colocation::where('token', $request->token)->first();
+
+        if (!$colocation) {
+            return back()->withErrors([
+                'token' => 'Invalid invitation token.'
+            ]);
+        }
+
+
+        if ($colocation->users()->where('user_id', auth()->id())->exists()) {
+            return redirect()->route('member.colocations.userDash');
+        }
+
+
+        $colocation->users()->attach(auth()->id(), [
+            'joined_at' => now(),
+            'role' => 'Member'
+        ]);
+
+        return redirect()->route('member.colocations.userDash')
+            ->with('success', 'Successfully joined colocation.');
+    }
+
+
+    public function showOwnerColoc($id)
+    {
+        $colocation = Colocation::findOrFail($id);
+
+        $expenses = $colocation->expenses;
+
+        $members = $colocation->users;
+
+        $categories = Categories::all();
+
+        return view('member.colocations.ownercoloc', compact(
+            'colocation',
+            'expenses',
+            'members',
+            'categories'
+        ));
+    }
+
+    public function joinForm()
+    {
+        return view('member.colocations.joinForm');
+    }
+
+    public function userDash()
+    {
+        $colocation = Colocation::whereHas('users', function ($query) {
+            $query->where('user_id', auth()->id());
+        })
+            ->with(['expenses', 'users'])
+            ->first();
+
+        $expenses = $colocation?->expenses ?? collect();
+        $members = $colocation?->users ?? collect();
+        $categories = Categories::all();
+
+        return view('member.colocations.userDash', compact(
+            'colocation',
+            'expenses',
+            'members',
+            'categories'
+        ));
+    }
+
+    public function userDashProcess(Request $request)
+    {
+        return redirect()->route('member.colocations.userDash');
     }
 }

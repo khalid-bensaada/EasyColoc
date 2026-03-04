@@ -2,32 +2,36 @@
 
 namespace App\Mail;
 
-use App\Models\Invitation;
+use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Content;
+use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
 class InvitationMail extends Mailable
 {
-    use SerializesModels;
+    use Queueable, SerializesModels;
 
-    public $invitation;
+    public $colocation;
+    public $token;
 
-    public function __construct(Invitation $invitation)
+    public function __construct($colocation, $token)
     {
-        $this->invitation = $invitation;
+        $this->colocation = $colocation;
+        $this->token = $token;
     }
 
-    public function envelope(): \Illuminate\Mail\Mailables\Envelope
+    public function envelope(): Envelope
     {
-        return new \Illuminate\Mail\Mailables\Envelope(
-            subject: 'You are invited to join colocation'
+        return new Envelope(
+            subject: 'You are invited to join a Colocation!',
         );
     }
 
-    public function content(): \Illuminate\Mail\Mailables\Content
+    public function content(): Content
     {
-        return new \Illuminate\Mail\Mailables\Content(
-            view: 'emails.invitation'
+        return new Content(
+            view: 'emails.invitation',
         );
     }
 }

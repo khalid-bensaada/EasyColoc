@@ -3,25 +3,33 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Colocation extends Model
 {
-    protected $fillable = [
+    protected $fillable =
+    [
         'name',
-        'status',
+        'description',
         'owner_id',
-        'descriptions'
+        'status',
+        'token',
+        'isOwner'
     ];
 
-    public function owner()
+    public function users(): BelongsToMany
     {
-        return $this->belongsTo(User::class, 'owner_id');
+        return $this->belongsToMany(User::class);
     }
 
-    public function users()
+    public function expenses(): HasMany
     {
-        return $this->belongsToMany(User::class)
-            ->withPivot('role', 'joined_at', 'left_at')
-            ->withTimestamps();
+
+        return $this->hasMany(Expense::class);
+    }
+    public function members(): HasMany
+    {
+        return $this->hasMany(Member::class, 'colocation_id');
     }
 }
