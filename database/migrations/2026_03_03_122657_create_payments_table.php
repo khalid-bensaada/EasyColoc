@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('expense_id')->constrained()->cascadeOnDelete();
             $table->foreignId('colocation_id')->constrained()->cascadeOnDelete();
 
-            $table->foreignId('payer_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('payer_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('creator_id')->constrained('users')->cascadeOnDelete();
 
             $table->decimal('amount', 10, 2);

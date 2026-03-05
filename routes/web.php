@@ -145,3 +145,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/colocations/invite', [ColocationController::class, 'sendInvitation'])
         ->name('colocations.invite');
 });
+
+
+Route::post('/colocation/leave', [ColocationController::class, 'leave'])
+    ->name('leave.accommodation');
+
+Route::post('/member/pay-expense', [ColocationController::class, 'payExpense'])->name('pay.expense');

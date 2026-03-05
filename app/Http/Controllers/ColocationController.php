@@ -8,6 +8,7 @@ use App\Mail\InvitationMail;
 use Illuminate\Http\Request;
 use App\Models\Colocation;
 use App\Models\Invitation;
+use App\Models\Payment;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -165,16 +166,61 @@ class ColocationController extends Controller
         $members = $colocation?->users ?? collect();
         $categories = Categories::all();
 
+        $sum = Payment::selectRaw("
+        users.name as member_name,
+        expenses.title as expense_title,
+        creator.name as expense_creator,
+        payments.id as payment_id,
+        payments.debtor_id as zz,
+        SUM(payments.amount) as total_owed
+    ")
+            ->join('users', 'users.id', '=', 'payments.debtor_id')
+            ->join('expenses', 'expenses.id', '=', 'payments.expense_id')
+            ->join('users as creator', 'creator.id', '=', 'payments.creator_id')
+            ->groupBy(
+                'users.name',
+                'expenses.title',
+                'creator.name',
+                'payments.id',
+                'payments.debtor_id'
+            )
+            ->get();
+
         return view('member.colocations.userDash', compact(
             'colocation',
             'expenses',
             'members',
-            'categories'
+            'categories',
+            'sum'
         ));
     }
 
     public function userDashProcess(Request $request)
     {
         return redirect()->route('member.colocations.userDash');
+    }
+
+    public function leave()
+    {
+        $colocation = Colocation::whereHas('users', function ($query) {
+            $query->where('user_id', auth()->id());
+        })->first();
+
+        if ($colocation) {
+            $colocation->users()->detach(auth()->id());
+        }
+
+        return redirect()->route('dashboard');
+    }
+
+    public function payExpense(Request $request)
+    {
+        $payment = Payment::where('id', $request->payment_id)
+            ->where('debtor_id', auth()->id())
+            ->firstOrFail();
+
+        $payment->delete();
+
+        return back()->with('success', 'Debt cleared successfully');
     }
 }

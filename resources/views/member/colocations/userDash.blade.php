@@ -83,7 +83,7 @@
 
                 <div class="flex items-center space-x-4">
                     @if($colocation)
-                        <form method="POST" action="">
+                        <form method="POST" action="{{ route('leave.accommodation') }}">
                             @csrf
                             <input name="owner_id" value="{{ $colocation->members_id }}" type="hidden">
                             <button type="submit" onclick="return confirm('Are you sure?')"
@@ -199,33 +199,33 @@
                 </div>
 
                 <div class="space-y-4">
-
-                    <div class="bg-red-50 border border-red-100 p-4 rounded-xl">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <h1 class="font-semibold text-slate-900"></h1>
-                                <p class="text-xs text-slate-500 mt-1">Needs to pay for
-                                    <strong></strong>
-                                </p>
-                                <p class="text-xs text-slate-500">To <strong></strong></p>
+                    @forelse($sum as $sam)
+                        <div class="bg-red-50 border border-red-100 p-4 rounded-xl">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h1 class="font-semibold text-slate-900">{{ $sam->member_name }}</h1>
+                                    <p class="text-xs text-slate-500 mt-1">Needs to pay for
+                                        <strong>{{ $sam->expense_title }}</strong>
+                                    </p>
+                                    <p class="text-xs text-slate-500">To <strong>{{ $sam->expense_creator }}</strong></p>
+                                </div>
+                                <p class="font-bold text-red-600">{{ number_format($sam->total_owed, 2) }} MAD</p>
                             </div>
-                            <p class="font-bold text-red-600"> MAD</p>
+
+                            @if($sam->zz == auth()->user()->id)
+                                <form method="POST" action="{{ route('pay.expense') }}">
+                                    @csrf
+                                    <input type="hidden" name="payment_id" value="{{ $sam->payment_id }}">
+                                    <button type="submit"
+                                        class="mt-3 w-full py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition shadow-md font-medium">
+                                        Pay Now
+                                    </button>
+                                </form>
+                            @endif
                         </div>
-
-
-                        <form method="POST" action="">
-                            @csrf
-                            <input type="hidden" name="payment_id" value="">
-                            <button type="submit"
-                                class="mt-3 w-full py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition shadow-md font-medium">
-                                Pay Now
-                            </button>
-                        </form>
-
-                    </div>
-
-                    <p class="text-center text-slate-400 text-sm py-4">All debts are cleared! 🚀</p>
-
+                    @empty
+                        <p class="text-center text-slate-400 text-sm py-4">All debts are cleared! 🚀</p>
+                    @endforelse
                 </div>
             </div>
 
