@@ -56,4 +56,16 @@ class ExpenseController extends Controller
 
         return back()->with('success', "Expense split! Each of the $count members owes " . number_format($share, 2) . " DH.");
     }
+
+    public function destroy(Expense $expense)
+    {
+
+        if ($expense->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $expense->delete();
+
+        return back()->with('success', 'Expense deleted successfully');
+    }
 }

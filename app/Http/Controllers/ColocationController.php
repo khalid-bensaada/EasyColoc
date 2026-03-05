@@ -133,19 +133,41 @@ class ColocationController extends Controller
 
     public function showOwnerColoc($id)
     {
-        $colocation = Colocation::findOrFail($id);
+        $colocation = Colocation::with(['expenses.user', 'users'])->findOrFail($id);
 
         $expenses = $colocation->expenses;
-
         $members = $colocation->users;
-
         $categories = Categories::all();
+
+        $sum = DB::table('payments')
+            ->join('users', 'users.id', '=', 'payments.debtor_id')
+            ->join('expenses', 'expenses.id', '=', 'payments.expense_id')
+            ->join('users as creator', 'creator.id', '=', 'payments.creator_id')
+            ->select(
+                'users.name as member_name',
+                'expenses.title as expense_title',
+                'creator.name as expense_creator',
+                'payments.id as payment_id',
+                'payments.debtor_id as zz',
+                DB::raw('SUM(payments.amount) as total_owed')
+            )
+            ->where('payments.colocation_id', $id)
+            ->where('payments.status', 'pending')
+            ->groupBy(
+                'users.name',
+                'expenses.title',
+                'creator.name',
+                'payments.id',
+                'payments.debtor_id'
+            )
+            ->get();
 
         return view('member.colocations.ownercoloc', compact(
             'colocation',
             'expenses',
             'members',
-            'categories'
+            'categories',
+            'sum'
         ));
     }
 
@@ -159,12 +181,14 @@ class ColocationController extends Controller
         $colocation = Colocation::whereHas('users', function ($query) {
             $query->where('user_id', auth()->id());
         })
-            ->with(['expenses', 'users'])
+            ->with(['expenses.user'])
             ->first();
 
         $expenses = $colocation?->expenses ?? collect();
         $members = $colocation?->users ?? collect();
         $categories = Categories::all();
+
+        $colocationId = $colocation?->id;
 
         $sum = Payment::selectRaw("
         users.name as member_name,
@@ -177,6 +201,7 @@ class ColocationController extends Controller
             ->join('users', 'users.id', '=', 'payments.debtor_id')
             ->join('expenses', 'expenses.id', '=', 'payments.expense_id')
             ->join('users as creator', 'creator.id', '=', 'payments.creator_id')
+            ->where('payments.colocation_id', $colocationId)
             ->groupBy(
                 'users.name',
                 'expenses.title',
@@ -222,5 +247,25 @@ class ColocationController extends Controller
         $payment->delete();
 
         return back()->with('success', 'Debt cleared successfully');
+    }
+
+    public function leaveColocation($colocationId)
+    {
+        $userId = auth()->id();
+
+        $payments = Payment::where('colocation_id', $colocationId)
+            ->where('debtor_id', $userId)
+            ->where('status', 'pending')
+            ->get();
+
+        foreach ($payments as $payment) {
+            $payment->debtor_id = $payment->creator_id;
+            $payment->save();
+        }
+
+        $colocation = Colocation::findOrFail($colocationId);
+        $colocation->users()->detach($userId);
+
+        return back();
     }
 }

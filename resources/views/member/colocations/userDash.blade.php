@@ -290,35 +290,38 @@
                 <h2 class="text-xl font-bold mb-4">Add New Expense</h2>
                 <form method="POST" action="{{ route('expenses.store') }}" class="space-y-4">
                     @csrf
+                    <input name="accommo_id" value="{{ $colocation->id ?? '' }}" type="hidden">
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Title</label>
-                        <input type="text" name="title" required
-                            class="w-full px-4 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
-                            placeholder="e.g. Electricity">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                        <input name="title" type="text" required class="w-full px-4 py-2 border rounded-xl">
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Amount (MAD)</label>
-                        <input type="number" step="0.01" name="amount" required
-                            class="w-full px-4 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
-                            placeholder="0.00">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                        <select name="category_id" class="w-full px-4 py-2 border rounded-xl" required>
-                            <option value="">Select Category</option>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Amount (MAD)</label>
+                            <input name="amount" type="number" step="0.01" required
+                                class="w-full px-4 py-2 border rounded-xl">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                            <select name="category_id" class="w-full px-4 py-2 border rounded-xl" required>
+                                <option value="">Select Category</option>
 
-                            @foreach($categories as $category)
-                                <option value="{{ $category->id }}">
-                                    {{ $category->name }}
-                                </option>
-                            @endforeach
-                        </select>
+                                @foreach($categories as $category)
+                                    <option value="{{ $category->id }}">
+                                        {{ $category->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
-                    <div class="flex gap-3 pt-4">
-                        <button type="button" onclick="closeModal('expenseModal')"
-                            class="flex-1 py-2 text-slate-500 font-medium">Cancel</button>
-                        <button type="submit"
-                            class="flex-1 py-2 gradient-bg text-white rounded-xl font-bold">Save</button>
+                    <div class="flex gap-3 mt-4">
+                        <button type="button" onclick="window.history.back()"
+                            class="flex-1 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold">
+                            Cancel
+                        </button>
+                        <button type="submit" class="flex-[2] py-3 bg-purple-600 text-white rounded-xl font-bold">
+                            Save Expense
+                        </button>
                     </div>
                 </form>
             </div>

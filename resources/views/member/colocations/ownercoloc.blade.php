@@ -133,32 +133,69 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden card-hover">
+
                 <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
                     <h3 class="font-bold text-gray-900 text-lg flex items-center gap-2">
-                        <i data-lucide="receipt" class="w-5 h-5 text-primary-600"></i> Recent Expenses
+                        <i data-lucide="receipt" class="w-5 h-5 text-primary-600"></i>
+                        Recent Expenses
                     </h3>
+
                     @if($colocation)
                         <button onclick="openModal('expenseModal')"
-                            class="text-sm bg-primary-600 text-white px-3 py-1 rounded-lg">Add New</button>
+                            class="text-sm bg-primary-600 hover:bg-primary-700 transition text-white px-4 py-2 rounded-lg">
+                            Add New
+                        </button>
                     @endif
                 </div>
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-left">
                         <tbody class="divide-y divide-gray-100">
+
                             @forelse($expenses as $expense)
                                 <tr class="hover:bg-gray-50 transition">
+
+
                                     <td class="px-6 py-4">
-                                        <p class="font-medium text-gray-900">{{ $expense->title }}</p>
-                                        <p class="text-xs text-gray-400">By {{ $expense->user->name }}</p>
+                                        <p class="font-medium text-gray-900">
+                                            {{ $expense->title }}
+                                        </p>
+                                        <p class="text-xs text-gray-400">
+                                            By {{ $expense->user->name }}
+                                        </p>
                                     </td>
-                                    <td class="px-6 py-4 text-primary-600 font-bold">{{ $expense->amount }} MAD</td>
-                                    <td class="px-6 py-4 text-sm text-gray-500">{{ $expense->created_at->diffForHumans() }}
+
+
+                                    <td class="px-6 py-4 text-primary-600 font-bold">
+                                        {{ $expense->amount }} MAD
                                     </td>
+
+
+                                    <td class="px-6 py-4 text-sm text-gray-500">
+                                        {{ $expense->created_at->diffForHumans() }}
+                                    </td>
+
+
+                                    <td class="px-6 py-4 text-right">
+                                        @if($expense->user_id === auth()->id())
+                                            <form action="{{ route('expenses.destroy', $expense->id) }}" method="POST"
+                                                onsubmit="return confirm('Are you sure you want to delete this expense?')">
+                                                @csrf
+                                                @method('DELETE')
+
+                                                <button type="submit"
+                                                    class="text-red-600 hover:text-red-800 hover:bg-red-50 px-3 py-1 rounded-lg text-sm font-medium transition">
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </td>
+
                                 </tr>
+
                             @empty
                                 <tr>
-                                    <td class="p-12 text-center">
+                                    <td colspan="4" class="p-12 text-center">
                                         <div
                                             class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                                             <i data-lucide="receipt" class="w-8 h-8 text-gray-300"></i>
@@ -167,11 +204,49 @@
                                     </td>
                                 </tr>
                             @endforelse
+
                         </tbody>
                     </table>
                 </div>
-            </div>
 
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 card-hover">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="p-3 bg-indigo-100 rounded-xl"><i data-lucide="users"
+                            class="w-6 h-6 text-indigo-600"></i></div>
+                    <h3 class="font-bold text-slate-800">Member Balances</h3>
+                </div>
+
+                <div class="space-y-4">
+                    @forelse($sum as $sam)
+                        <div class="bg-red-50 border border-red-100 p-4 rounded-xl">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h1 class="font-semibold text-slate-900">{{ $sam->member_name }}</h1>
+                                    <p class="text-xs text-slate-500 mt-1">Needs to pay for
+                                        <strong>{{ $sam->expense_title }}</strong>
+                                    </p>
+                                    <p class="text-xs text-slate-500">To <strong>{{ $sam->expense_creator }}</strong></p>
+                                </div>
+                                <p class="font-bold text-red-600">{{ number_format($sam->total_owed, 2) }} MAD</p>
+                            </div>
+
+                            @if($sam->zz == auth()->user()->id)
+                                <form method="POST" action="{{ route('pay.expense') }}">
+                                    @csrf
+                                    <input type="hidden" name="payment_id" value="{{ $sam->payment_id }}">
+                                    <button type="submit"
+                                        class="mt-3 w-full py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition shadow-md font-medium">
+                                        Pay Now
+                                    </button>
+                                </form>
+                            @endif
+                        </div>
+                    @empty
+                        <p class="text-center text-slate-400 text-sm py-4">All debts are cleared! 🚀</p>
+                    @endforelse
+                </div>
+            </div>
             <div class="bg-gradient-to-br from-indigo-600 to-purple-700 text-white rounded-2xl p-6 shadow-lg">
                 <h3 class="font-bold text-xl mb-6">Home Members</h3>
                 <div class="space-y-4">

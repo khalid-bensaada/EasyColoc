@@ -151,3 +151,9 @@ Route::post('/colocation/leave', [ColocationController::class, 'leave'])
     ->name('leave.accommodation');
 
 Route::post('/member/pay-expense', [ColocationController::class, 'payExpense'])->name('pay.expense');
+
+
+Route::delete('/expenses/{expense}', [ExpenseController::class, 'destroy'])
+    ->name('expenses.destroy');
+
+Route::post('/colocation/{id}/leave', [ColocationController::class, 'leaveColocation'])->name('colocation.leave');
